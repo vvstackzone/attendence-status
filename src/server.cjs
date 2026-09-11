@@ -4,17 +4,13 @@ const http = require('http');
 
 const PORT = Number(process.env.PORT || 4000);
 
-// server.cjs and db.json are in the same folder
-const rootDir = __dirname;
-const dbPath = path.join(rootDir, 'db.json');
+const dbPath = path.join(__dirname, 'db.json');
 
-// Check db.json exists
 if (!fs.existsSync(dbPath)) {
   console.error(`Database file not found: ${dbPath}`);
   process.exit(1);
 }
 
-// Load database
 let db;
 
 try {
@@ -24,24 +20,23 @@ try {
   process.exit(1);
 }
 
-// Send JSON response
 function sendJson(res, statusCode, payload) {
   const body = JSON.stringify(payload);
 
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods':
+      'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers':
+      'Content-Type, Authorization',
     'Cache-Control': 'no-store',
   });
 
   res.end(body);
 }
 
-// Create HTTP server
 const server = http.createServer((req, res) => {
-  // CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
@@ -55,24 +50,13 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Parse URL safely
-  let url;
-
-  try {
-    url = new URL(
-      req.url || '/',
-      `http://${req.headers.host || 'localhost'}`
-    );
-  } catch (error) {
-    sendJson(res, 400, {
-      message: 'Invalid URL',
-    });
-    return;
-  }
+  const url = new URL(
+    req.url || '/',
+    `http://${req.headers.host || 'localhost'}`
+  );
 
   const pathname = url.pathname;
 
-  // Root / Health check
   if (pathname === '/' || pathname === '/health') {
     sendJson(res, 200, {
       status: 'ok',
@@ -81,20 +65,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Split URL
   const segments = pathname.split('/').filter(Boolean);
-
-  if (segments.length === 0) {
-    sendJson(res, 404, {
-      message: 'Not found',
-    });
-    return;
-  }
 
   const collectionName = segments[0];
   const resourceId = segments[1];
 
-  // Find collection
   const collection = db[collectionName];
 
   if (!collection || !Array.isArray(collection)) {
@@ -104,12 +79,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // =========================
-  // GET
-  // =========================
-
   if (req.method === 'GET') {
-    // GET /collection/:id
     if (resourceId) {
       const item = collection.find(
         (entry) => String(entry.id) === String(resourceId)
@@ -126,7 +96,6 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    // GET /collection?key=value
     const query = Object.fromEntries(
       url.searchParams.entries()
     );
@@ -143,10 +112,6 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // =========================
-  // POST
-  // =========================
-
   if (req.method === 'POST') {
     let body = '';
 
@@ -160,9 +125,7 @@ const server = http.createServer((req, res) => {
 
         const newItem = {
           ...payload,
-          id:
-            payload.id ||
-            `${collectionName}-${Date.now()}`,
+          id: payload.id || `${collectionName}-${Date.now()}`,
         };
 
         collection.push(newItem);
@@ -173,9 +136,7 @@ const server = http.createServer((req, res) => {
         );
 
         sendJson(res, 201, newItem);
-      } catch (error) {
-        console.error('POST error:', error);
-
+      } catch {
         sendJson(res, 400, {
           message: 'Invalid JSON body',
         });
@@ -184,10 +145,6 @@ const server = http.createServer((req, res) => {
 
     return;
   }
-
-  // =========================
-  // PATCH / PUT
-  // =========================
 
   if (req.method === 'PATCH' || req.method === 'PUT') {
     if (!resourceId) {
@@ -232,9 +189,7 @@ const server = http.createServer((req, res) => {
         );
 
         sendJson(res, 200, updated);
-      } catch (error) {
-        console.error('UPDATE error:', error);
-
+      } catch {
         sendJson(res, 400, {
           message: 'Invalid JSON body',
         });
@@ -243,10 +198,6 @@ const server = http.createServer((req, res) => {
 
     return;
   }
-
-  // =========================
-  // DELETE
-  // =========================
 
   if (req.method === 'DELETE') {
     if (!resourceId) {
@@ -283,18 +234,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // =========================
-  // Unsupported method
-  // =========================
-
   sendJson(res, 405, {
     message: 'Method not allowed',
   });
 });
 
-// Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(
-    `JSON API server running on port ${PORT}`
-  );
+  console.log(`JSON API server running on port ${PORT}`);
 });
