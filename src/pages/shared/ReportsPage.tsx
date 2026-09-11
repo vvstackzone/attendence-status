@@ -80,7 +80,7 @@ export default function ReportsPage() {
           });
       });
     return rows;
-  }, [scopedEmployees, requestsQ.data, typeFilter, statusFilter, fromDate, toDate, leaveTypeMap]);
+  }, [scopedEmployees, requestsQ.data, typeFilter, statusFilter, fromDate, toDate, leaveTypeMap, empFilter]);
 
   function exportReportCSV() {
     if (tab === "attendance") {

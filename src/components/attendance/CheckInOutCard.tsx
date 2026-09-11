@@ -396,7 +396,7 @@ export default function CheckInOutCard({ onAttendanceUpdated, compact = false }:
                   try {
                     await attendanceService.updateAttendance(todayRecord.id, { remarks });
                     toast.success("Notes saved");
-                  } catch (e: any) {
+                  } catch {
                     toast.error("Failed to save note");
                   }
                 }}

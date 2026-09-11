@@ -1,33 +1,27 @@
-import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import type { User } from "../types";
 import * as authService from "../services/authService";
-
-interface AuthContextValue {
-  user: User | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
-}
-
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { AuthContext } from "./auth-context";
 
 const STORAGE_KEY = "lams_current_user";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem(STORAGE_KEY);
-      }
+
+    if (!stored) {
+      return null;
     }
-    setLoading(false);
-  }, []);
+
+    try {
+      return JSON.parse(stored) as User;
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+  });
+
+  const loading = false;
 
   const login = useCallback(async (email: string, password: string) => {
     const loggedInUser = await authService.login(email, password);

@@ -1,15 +1,5 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
-export type ThemeMode = "light" | "dark" | "system";
-
-interface ThemeContextValue {
-  theme: ThemeMode;
-  resolvedTheme: "light" | "dark";
-  setTheme: (theme: ThemeMode) => void;
-  toggleTheme: () => void;
-}
-
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+import { useEffect, useState, type ReactNode } from "react";
+import { ThemeContext, type ThemeMode } from "./theme-context";
 
 const THEME_STORAGE_KEY = "leave_attendance_theme";
 
@@ -79,10 +69,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useTheme(): ThemeContextValue {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return ctx;
-}
