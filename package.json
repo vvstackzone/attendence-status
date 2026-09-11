@@ -3,14 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "server": "json-server --watch db.json --port 4000",
-    "seed": "node scripts/seed.cjs",
-    "dev:all": "concurrently -n WEB,API -c blue,green \"npm run dev\" \"npm run server\"",
-    "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+ "scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "start": "serve -s dist -l 10000"
+
   },
   "dependencies": {
     "axios": "^1.20.0",
@@ -19,7 +17,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-hot-toast": "^2.6.0",
-    "react-router-dom": "^7.18.3"
+    "react-router-dom": "^7.18.3",
+    "serve": "^14.2.6"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
