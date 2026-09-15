@@ -1451,6 +1451,36 @@
       "remarks": "Arrived after 9:30 AM",
       "workingHours": "0h 01m",
       "id": "zK8x5Lt"
+    },
+    {
+      "employeeId": "emp001",
+      "date": "2026-09-15",
+      "checkIn": "14:31",
+      "checkOut": null,
+      "status": "Late",
+      "remarks": "Arrived after 9:30 AM",
+      "workingHours": null,
+      "id": "attendance-1789462885158"
+    },
+    {
+      "employeeId": "emp006",
+      "date": "2026-09-15",
+      "checkIn": "14:31",
+      "checkOut": null,
+      "status": "Late",
+      "remarks": "Arrived after 9:30 AM",
+      "workingHours": null,
+      "id": "attendance-1789462914520"
+    },
+    {
+      "employeeId": "emp002",
+      "date": "2026-09-15",
+      "checkIn": "14:48",
+      "checkOut": "14:48",
+      "status": "Late",
+      "remarks": "Arrived after 9:30 AM",
+      "workingHours": "0h 00m",
+      "id": "attendance-1789463901142"
     }
   ],
   "leaveTypes": [
@@ -1602,6 +1632,20 @@
       "reviewDate": null,
       "reviewComment": null,
       "id": "laROsxN"
+    },
+    {
+      "employeeId": "emp001",
+      "leaveTypeId": "lt1",
+      "startDate": "2026-09-15",
+      "endDate": "2026-09-15",
+      "numberOfDays": 1,
+      "reason": "xx",
+      "appliedDate": "2026-09-15",
+      "status": "Pending",
+      "reviewedBy": null,
+      "reviewDate": null,
+      "reviewComment": null,
+      "id": "leaveRequests-1789462896522"
     }
   ],
   "activities": [
@@ -1712,6 +1756,51 @@
       "relatedRecord": "zK8x5Lt",
       "timestamp": "2026-09-11T05:54:42.844Z",
       "id": "bT84sIw"
+    },
+    {
+      "userId": "u4",
+      "userName": "Arun Kumar",
+      "action": "Checked In",
+      "description": "Arun Kumar checked in at 14:31 (Late)",
+      "relatedRecord": "emp001",
+      "timestamp": "2026-09-15T09:01:25.175Z",
+      "id": "activities-1789462885177"
+    },
+    {
+      "userId": "u4",
+      "userName": "Arun Kumar",
+      "action": "Leave Applied",
+      "description": "Arun Kumar applied for Casual Leave",
+      "relatedRecord": null,
+      "timestamp": "2026-09-15T09:01:36.528Z",
+      "id": "activities-1789462896530"
+    },
+    {
+      "userId": "u2",
+      "userName": "Sneha Reddy",
+      "action": "Checked In",
+      "description": "Sneha Reddy checked in at 14:31 (Late)",
+      "relatedRecord": "emp006",
+      "timestamp": "2026-09-15T09:01:54.525Z",
+      "id": "activities-1789462914527"
+    },
+    {
+      "userId": "u3",
+      "userName": "Priya Sharma",
+      "action": "Checked In",
+      "description": "Priya Sharma checked in at 14:48 (Late)",
+      "relatedRecord": "emp002",
+      "timestamp": "2026-09-15T09:18:21.148Z",
+      "id": "activities-1789463901151"
+    },
+    {
+      "userId": "u3",
+      "userName": "Priya Sharma",
+      "action": "Checked Out",
+      "description": "Priya Sharma checked out at 14:48 (Total: 0h 00m)",
+      "relatedRecord": "attendance-1789463901142",
+      "timestamp": "2026-09-15T09:18:22.420Z",
+      "id": "activities-1789463902421"
     }
   ]
 }
