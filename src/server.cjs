@@ -46,7 +46,7 @@ function sendJson(req, res, statusCode, payload) {
   res.end(body);
 }
 
-const server = http.createServer((req, res) => {
+function handleRequest(req, res) {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': getCorsOrigin(req),
@@ -245,9 +245,15 @@ const server = http.createServer((req, res) => {
   sendJson(req, res, 405, {
     message: 'Method not allowed',
   });
-});
+}
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`JSON API running on port ${PORT}`);
-});
+if (require.main === module) {
+  const server = http.createServer(handleRequest);
+
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`JSON API running on port ${PORT}`);
+  });
+}
+
+module.exports = { handleRequest };
  

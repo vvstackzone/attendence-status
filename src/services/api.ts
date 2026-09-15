@@ -3,7 +3,7 @@ import axios from "axios";
 const fallbackApiUrl =
   typeof window !== "undefined" && window.location.hostname === "localhost"
     ? "http://localhost:4000"
-    : "https://attendence-status-12.onrender.com";
+    : "/api";
 
 export const API_BASE_URL = (import.meta.env.VITE_API_URL || fallbackApiUrl).replace(/\/+$/, "");
 
