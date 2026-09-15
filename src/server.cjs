@@ -4,7 +4,7 @@ const http = require('http');
 
 const PORT = Number(process.env.PORT || 4000);
 
-const dbPath = path.join(__dirname, 'db.json');
+const dbPath = path.join(__dirname, '..', 'db.json');
 
 if (!fs.existsSync(dbPath)) {
   console.error(`Database file not found: ${dbPath}`);

@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "server": "node src/server.cjs",
+    "dev:all": "concurrently \"npm run server\" \"npm run dev\"",
+    "seed": "node scripts/seed.cjs",
     "build": "vite build",
     "preview": "vite preview",
     "start": "serve -s dist -l $PORT"
