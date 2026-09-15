@@ -4,9 +4,9 @@ const http = require('http');
 
 const PORT = Number(process.env.PORT || 4000);
 const allowedOrigins = new Set([
-  'http://localhost:5173',
+  ' http://localhost:5173/',
   'http://localhost:5174',
-  'https://it-service-pink.vercel.app',
+  'attendence-status-cx54.vercel.app',
 ]);
 
 const dbPath = path.join(__dirname, '..', 'db.json');
