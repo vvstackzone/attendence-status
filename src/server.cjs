@@ -3,6 +3,11 @@ const path = require('path');
 const http = require('http');
 
 const PORT = Number(process.env.PORT || 4000);
+const allowedOrigins = new Set([
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://attendence-status-vxs9.vercel.app',
+]);
 
 const dbPath = path.join(__dirname, '..', 'db.json');
 
@@ -20,12 +25,17 @@ try {
   process.exit(1);
 }
 
-function sendJson(res, statusCode, payload) {
+function getCorsOrigin(req) {
+  const origin = req.headers.origin;
+  return allowedOrigins.has(origin) ? origin : 'null';
+}
+
+function sendJson(req, res, statusCode, payload) {
   const body = JSON.stringify(payload);
 
   res.writeHead(statusCode, {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': getCorsOrigin(req),
     'Access-Control-Allow-Methods':
       'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     'Access-Control-Allow-Headers':
@@ -39,7 +49,7 @@ function sendJson(res, statusCode, payload) {
 const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': getCorsOrigin(req),
       'Access-Control-Allow-Methods':
         'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'Access-Control-Allow-Headers':
@@ -58,7 +68,7 @@ const server = http.createServer((req, res) => {
   const pathname = url.pathname;
 
   if (pathname === '/' || pathname === '/health') {
-    sendJson(res, 200, {
+    sendJson(req, res, 200, {
       status: 'ok',
       message: 'JSON API is running',
     });
@@ -73,7 +83,7 @@ const server = http.createServer((req, res) => {
   const collection = db[collectionName];
 
   if (!collection || !Array.isArray(collection)) {
-    sendJson(res, 404, {
+    sendJson(req, res, 404, {
       message: `Collection not found: ${collectionName}`,
     });
     return;
@@ -86,13 +96,13 @@ const server = http.createServer((req, res) => {
       );
 
       if (!item) {
-        sendJson(res, 404, {
+        sendJson(req, res, 404, {
           message: 'Item not found',
         });
         return;
       }
 
-      sendJson(res, 200, item);
+      sendJson(req, res, 200, item);
       return;
     }
 
@@ -108,7 +118,7 @@ const server = http.createServer((req, res) => {
       );
     });
 
-    sendJson(res, 200, items);
+    sendJson(req, res, 200, items);
     return;
   }
 
@@ -135,9 +145,9 @@ const server = http.createServer((req, res) => {
           JSON.stringify(db, null, 2)
         );
 
-        sendJson(res, 201, newItem);
+        sendJson(req, res, 201, newItem);
       } catch {
-        sendJson(res, 400, {
+        sendJson(req, res, 400, {
           message: 'Invalid JSON body',
         });
       }
@@ -148,7 +158,7 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'PATCH' || req.method === 'PUT') {
     if (!resourceId) {
-      sendJson(res, 400, {
+      sendJson(req, res, 400, {
         message: 'Resource id is required',
       });
       return;
@@ -170,7 +180,7 @@ const server = http.createServer((req, res) => {
         );
 
         if (index === -1) {
-          sendJson(res, 404, {
+          sendJson(req, res, 404, {
             message: 'Item not found',
           });
           return;
@@ -188,9 +198,9 @@ const server = http.createServer((req, res) => {
           JSON.stringify(db, null, 2)
         );
 
-        sendJson(res, 200, updated);
+        sendJson(req, res, 200, updated);
       } catch {
-        sendJson(res, 400, {
+        sendJson(req, res, 400, {
           message: 'Invalid JSON body',
         });
       }
@@ -201,7 +211,7 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'DELETE') {
     if (!resourceId) {
-      sendJson(res, 400, {
+      sendJson(req, res, 400, {
         message: 'Resource id is required',
       });
       return;
@@ -212,7 +222,7 @@ const server = http.createServer((req, res) => {
     );
 
     if (index === -1) {
-      sendJson(res, 404, {
+      sendJson(req, res, 404, {
         message: 'Item not found',
       });
       return;
@@ -225,14 +235,14 @@ const server = http.createServer((req, res) => {
       JSON.stringify(db, null, 2)
     );
 
-    sendJson(res, 200, {
+    sendJson(req, res, 200, {
       message: 'Item deleted successfully',
       data: deletedItem,
     });
     return;
   }
 
-  sendJson(res, 405, {
+  sendJson(req, res, 405, {
     message: 'Method not allowed',
   });
 });
