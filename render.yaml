@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: attendence-status-api
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm run server
+    healthCheckPath: /health
