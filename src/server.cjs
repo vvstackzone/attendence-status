@@ -3,11 +3,6 @@ const path = require('path');
 const http = require('http');
 
 const PORT = Number(process.env.PORT || 4000);
-const allowedOrigins = new Set([
-  ' http://localhost:5173/',
-  'http://localhost:5174',
-  'attendence-status-cx54.vercel.app',
-]);
 
 const dbPath = path.join(__dirname, '..', 'db.json');
 
@@ -25,24 +20,16 @@ try {
   process.exit(1);
 }
 
-function sendJson(req, res, statusCode, payload) {
+function sendJson(res, statusCode, payload) {
   const body = JSON.stringify(payload);
-  const origin = req.headers.origin;
-  const corsHeaders = {
+
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods':
       'GET,POST,PUT,PATCH,DELETE,OPTIONS',
     'Access-Control-Allow-Headers':
       'Content-Type, Authorization',
-    'Vary': 'Origin',
-  };
-
-  if (origin && allowedOrigins.has(origin)) {
-    corsHeaders['Access-Control-Allow-Origin'] = origin;
-  }
-
-  res.writeHead(statusCode, {
-    'Content-Type': 'application/json',
-    ...corsHeaders,
     'Cache-Control': 'no-store',
   });
 
@@ -50,23 +37,13 @@ function sendJson(req, res, statusCode, payload) {
 }
 
 const server = http.createServer((req, res) => {
-  const origin = req.headers.origin;
-
-  if (origin && !allowedOrigins.has(origin)) {
-    sendJson(req, res, 403, {
-      message: 'Origin not allowed',
-    });
-    return;
-  }
-
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
-      ...(origin ? { 'Access-Control-Allow-Origin': origin } : {}),
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods':
         'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'Access-Control-Allow-Headers':
         'Content-Type, Authorization',
-      'Vary': 'Origin',
     });
 
     res.end();
@@ -81,7 +58,7 @@ const server = http.createServer((req, res) => {
   const pathname = url.pathname;
 
   if (pathname === '/' || pathname === '/health') {
-    sendJson(req, res, 200, {
+    sendJson(res, 200, {
       status: 'ok',
       message: 'JSON API is running',
     });
@@ -96,7 +73,7 @@ const server = http.createServer((req, res) => {
   const collection = db[collectionName];
 
   if (!collection || !Array.isArray(collection)) {
-    sendJson(req, res, 404, {
+    sendJson(res, 404, {
       message: `Collection not found: ${collectionName}`,
     });
     return;
@@ -109,13 +86,13 @@ const server = http.createServer((req, res) => {
       );
 
       if (!item) {
-        sendJson(req, res, 404, {
+        sendJson(res, 404, {
           message: 'Item not found',
         });
         return;
       }
 
-      sendJson(req, res, 200, item);
+      sendJson(res, 200, item);
       return;
     }
 
@@ -131,7 +108,7 @@ const server = http.createServer((req, res) => {
       );
     });
 
-    sendJson(req, res, 200, items);
+    sendJson(res, 200, items);
     return;
   }
 
@@ -158,9 +135,9 @@ const server = http.createServer((req, res) => {
           JSON.stringify(db, null, 2)
         );
 
-        sendJson(req, res, 201, newItem);
+        sendJson(res, 201, newItem);
       } catch {
-        sendJson(req, res, 400, {
+        sendJson(res, 400, {
           message: 'Invalid JSON body',
         });
       }
@@ -171,7 +148,7 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'PATCH' || req.method === 'PUT') {
     if (!resourceId) {
-      sendJson(req, res, 400, {
+      sendJson(res, 400, {
         message: 'Resource id is required',
       });
       return;
@@ -193,7 +170,7 @@ const server = http.createServer((req, res) => {
         );
 
         if (index === -1) {
-          sendJson(req, res, 404, {
+          sendJson(res, 404, {
             message: 'Item not found',
           });
           return;
@@ -211,9 +188,9 @@ const server = http.createServer((req, res) => {
           JSON.stringify(db, null, 2)
         );
 
-        sendJson(req, res, 200, updated);
+        sendJson(res, 200, updated);
       } catch {
-        sendJson(req, res, 400, {
+        sendJson(res, 400, {
           message: 'Invalid JSON body',
         });
       }
@@ -224,44 +201,43 @@ const server = http.createServer((req, res) => {
 
   if (req.method === 'DELETE') {
     if (!resourceId) {
-      sendJson(req, res, 400, {
+      sendJson(res, 400, {
         message: 'Resource id is required',
       });
       return;
     }
 
     const index = collection.findIndex(
-      (entry) =>
-        String(entry.id) === String(resourceId)
+      (entry) => String(entry.id) === String(resourceId)
     );
 
     if (index === -1) {
-      sendJson(req, res, 404, {
+      sendJson(res, 404, {
         message: 'Item not found',
       });
       return;
     }
 
-    collection.splice(index, 1);
+    const [deletedItem] = collection.splice(index, 1);
 
     fs.writeFileSync(
       dbPath,
       JSON.stringify(db, null, 2)
     );
 
-    sendJson(req, res, 200, {
-      success: true,
+    sendJson(res, 200, {
       message: 'Item deleted successfully',
+      data: deletedItem,
     });
-
     return;
   }
 
-  sendJson(req, res, 405, {
+  sendJson(res, 405, {
     message: 'Method not allowed',
   });
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`JSON API server running on port ${PORT}`);
+  console.log(`JSON API running on port ${PORT}`);
 });
+ 
